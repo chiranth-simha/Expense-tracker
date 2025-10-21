@@ -15,7 +15,7 @@ const ExpenseList = () => {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [refreshKey]);
 
   const remove = async (id) => {
     if (!window.confirm('Delete this expense?')) return;

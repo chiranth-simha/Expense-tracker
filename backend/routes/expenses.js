@@ -1,14 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const Expense = require('../models/Expense');
-const auth = require('../middleware/authMiddleware');
 
-// Create expense
-router.post('/', auth, async (req, res) => {
+// Create expense (public)
+router.post('/', async (req, res) => {
   try {
     const { title, amount, category, date, notes } = req.body;
     if (!title || amount == null) return res.status(400).json({ message: 'Title and amount are required' });
-    const expense = new Expense({ user: req.user.id, title, amount, category, date, notes });
+    const expense = new Expense({ title, amount, category, date, notes });
     await expense.save();
     res.json(expense);
   } catch (err) {
@@ -17,10 +16,10 @@ router.post('/', auth, async (req, res) => {
   }
 });
 
-// Read all user expenses
-router.get('/', auth, async (req, res) => {
+// Read all expenses
+router.get('/', async (req, res) => {
   try {
-    const expenses = await Expense.find({ user: req.user.id }).sort({ date: -1 });
+    const expenses = await Expense.find().sort({ date: -1 });
     res.json(expenses);
   } catch (err) {
     console.error(err);
@@ -29,11 +28,10 @@ router.get('/', auth, async (req, res) => {
 });
 
 // Update expense
-router.put('/:id', auth, async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     let expense = await Expense.findById(req.params.id);
     if (!expense) return res.status(404).json({ message: 'Expense not found' });
-    if (expense.user.toString() !== req.user.id) return res.status(401).json({ message: 'Unauthorized' });
 
     expense = await Expense.findByIdAndUpdate(req.params.id, req.body, { new: true });
     res.json(expense);
@@ -44,11 +42,10 @@ router.put('/:id', auth, async (req, res) => {
 });
 
 // Delete expense
-router.delete('/:id', auth, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     let expense = await Expense.findById(req.params.id);
     if (!expense) return res.status(404).json({ message: 'Expense not found' });
-    if (expense.user.toString() !== req.user.id) return res.status(401).json({ message: 'Unauthorized' });
 
     await Expense.findByIdAndDelete(req.params.id);
     res.json({ message: 'Expense deleted' });
