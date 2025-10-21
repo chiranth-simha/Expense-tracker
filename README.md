@@ -1,3 +1,32 @@
+# Expense Tracker (Full Stack)
+
+This repository contains a full-stack expense tracker app.
+
+Backend: Node.js + Express + MongoDB
+Frontend: React + Material UI
+
+Quick start (two terminals):
+
+1. Backend
+
+ - Copy `backend/.env.example` to `backend/.env` and set `MONGO_URI` and `JWT_SECRET`.
+ - Install and run:
+
+```powershell
+cd backend
+npm install
+npm run dev
+```
+
+2. Frontend
+
+```powershell
+cd frontend
+npm install
+npm start
+```
+
+The frontend runs on http://localhost:3000 and the backend on http://localhost:5000 by default.
 # MERN Expense Tracker
 
 A **full-stack MERN (MongoDB, Express, React, Node.js) Expense Tracker** web application with authentication, expense management, dynamic charts, and modern UI. Track your expenses efficiently, analyze your spending habits, and gain insights with category-wise summaries and visual dashboards.

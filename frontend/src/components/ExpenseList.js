@@ -1,56 +1,47 @@
-import { useState, useEffect } from 'react';
-import API from '../api/api';
-import { Box, Typography, IconButton, Table, TableBody, TableCell, TableHead, TableRow } from '@mui/material';
+import { useEffect, useState } from 'react';
+import { Box, List, ListItem, ListItemText, IconButton, Typography } from '@mui/material';
 import DeleteIcon from '@mui/icons-material/Delete';
-import EditIcon from '@mui/icons-material/Edit';
+import API from '../api/api';
 
 const ExpenseList = () => {
   const [expenses, setExpenses] = useState([]);
 
-  const fetchExpenses = async () => {
-    const res = await API.get('/expenses');
-    setExpenses(res.data);
-  };
-
-  useEffect(() => { fetchExpenses(); }, []);
-
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure?')) {
-      await API.delete(`/expenses/${id}`);
-      setExpenses(expenses.filter(exp => exp._id !== id));
+  const load = async () => {
+    try {
+      const res = await API.get('/expenses');
+      setExpenses(res.data);
+    } catch (err) {
+      console.error(err);
     }
   };
 
+  useEffect(() => { load(); }, []);
+
+  const remove = async (id) => {
+    if (!window.confirm('Delete this expense?')) return;
+    try {
+      await API.delete(`/expenses/${id}`);
+      setExpenses(expenses.filter(e => e._id !== id));
+    } catch (err) {
+      alert('Failed to delete');
+    }
+  };
+
+  if (!expenses.length) return <Typography>No expenses yet</Typography>;
+
   return (
-    <Box sx={{ maxWidth: 800, margin: '20px auto', padding: 2, boxShadow: 3, borderRadius: 2, backgroundColor: 'white' }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>Your Expenses</Typography>
-      <Table>
-        <TableHead>
-          <TableRow>
-            <TableCell>Title</TableCell>
-            <TableCell>Amount</TableCell>
-            <TableCell>Category</TableCell>
-            <TableCell>Date</TableCell>
-            <TableCell>Recurring</TableCell>
-            <TableCell>Actions</TableCell>
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {expenses.map(exp => (
-            <TableRow key={exp._id} hover>
-              <TableCell>{exp.title}</TableCell>
-              <TableCell>${exp.amount}</TableCell>
-              <TableCell>{exp.category}</TableCell>
-              <TableCell>{new Date(exp.date).toLocaleDateString()}</TableCell>
-              <TableCell>{exp.recurring ? 'Yes' : 'No'}</TableCell>
-              <TableCell>
-                <IconButton color="primary"><EditIcon /></IconButton>
-                <IconButton color="error" onClick={() => handleDelete(exp._id)}><DeleteIcon /></IconButton>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+    <Box sx={{ mt: 2, p: 2, boxShadow: 1, borderRadius: 1, backgroundColor: 'white' }}>
+      <List>
+        {expenses.map(exp => (
+          <ListItem key={exp._id} secondaryAction={
+            <IconButton edge="end" aria-label="delete" onClick={() => remove(exp._id)}>
+              <DeleteIcon />
+            </IconButton>
+          }>
+            <ListItemText primary={`${exp.title} — $${exp.amount}`} secondary={`${exp.category || ''} • ${new Date(exp.date).toLocaleDateString()}`} />
+          </ListItem>
+        ))}
+      </List>
     </Box>
   );
 };

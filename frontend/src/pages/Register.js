@@ -1,11 +1,10 @@
 import { useState, useContext } from 'react';
-import { useNavigate } from 'react-router-dom';
-import API from '../api/api';
+import { useNavigate, Link } from 'react-router-dom';
 import { AuthContext } from '../context/AuthContext';
 import { Box, TextField, Button, Typography } from '@mui/material';
 
 const Register = () => {
-  const { setUser } = useContext(AuthContext);
+  const { register } = useContext(AuthContext);
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '' });
 
@@ -14,23 +13,23 @@ const Register = () => {
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      const res = await API.post('/auth/register', form);
-      localStorage.setItem('token', res.data.token);
-      setUser(res.data.user);
-      navigate('/');
+      await register(form);
+      navigate('/home');
     } catch (err) {
-      alert(err.response.data.message || 'Registration failed');
+      const msg = err?.response?.data?.message || err?.message || 'Registration failed';
+      alert(msg);
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 400, margin: '50px auto', padding: 3, boxShadow: 3, borderRadius: 2, backgroundColor: 'white' }}>
+    <Box sx={{ maxWidth: 420, margin: '60px auto', padding: 4, boxShadow: 3, borderRadius: 2, backgroundColor: 'white' }}>
       <Typography variant="h5" sx={{ mb: 2 }}>Register</Typography>
       <form onSubmit={handleSubmit}>
         <TextField fullWidth label="Name" name="name" value={form.name} onChange={handleChange} sx={{ mb: 2 }} required />
         <TextField fullWidth label="Email" name="email" type="email" value={form.email} onChange={handleChange} sx={{ mb: 2 }} required />
         <TextField fullWidth label="Password" name="password" type="password" value={form.password} onChange={handleChange} sx={{ mb: 2 }} required />
-        <Button type="submit" variant="contained" color="primary" fullWidth>Register</Button>
+        <Button type="submit" variant="contained" color="primary" fullWidth sx={{ mb: 1 }}>Register</Button>
+        <Button component={Link} to="/login" fullWidth>Back to Login</Button>
       </form>
     </Box>
   );

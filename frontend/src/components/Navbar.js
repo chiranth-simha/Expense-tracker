@@ -1,21 +1,24 @@
 import { useContext } from 'react';
 import { AuthContext } from '../context/AuthContext';
+import { AppBar, Toolbar, Typography, Button } from '@mui/material';
 
 const Navbar = () => {
-  const { user, setUser } = useContext(AuthContext);
-  const logout = () => {
-    localStorage.removeItem('token');
-    setUser(null);
-  }
+  const { user, logout } = useContext(AuthContext);
 
   return (
-    <nav style={{ padding: '10px', display: 'flex', justifyContent: 'space-between', background: '#1976d2', color: 'white' }}>
-      <h2>Expense Tracker</h2>
-      {user && <div>
-        <span>{user.name}</span>
-        <button onClick={logout} style={{ marginLeft: '10px', padding: '5px' }}>Logout</button>
-      </div>}
-    </nav>
+    <AppBar position="static">
+      <Toolbar>
+        <Typography variant="h6" sx={{ flexGrow: 1 }}>Expense Tracker</Typography>
+        {user ? (
+          <>
+            <Typography variant="body1" sx={{ marginRight: 2 }}>{user.name}</Typography>
+            <Button color="inherit" onClick={logout}>Logout</Button>
+          </>
+        ) : (
+          <Typography variant="body2">Not logged in</Typography>
+        )}
+      </Toolbar>
+    </AppBar>
   );
 };
 
