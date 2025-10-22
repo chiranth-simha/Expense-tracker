@@ -1,93 +1,55 @@
-# Expense Tracker (Full Stack)
+# Expense Tracker
 
-This repository contains a full-stack expense tracker app.
+A modern expense tracking application built with React and Node.js.
 
-Backend: Node.js + Express + MongoDB
-Frontend: React + Material UI
+## Features
 
-Quick start (two terminals):
+- User authentication (register/login)
+- Add, edit, and delete expenses
+- Categorize expenses
+- Visual charts and analytics
+- Responsive modern UI
+- Real-time expense tracking
 
-1. Backend
+## Tech Stack
 
- - Copy `backend/.env.example` to `backend/.env` and set `MONGO_URI` and `JWT_SECRET`.
- - Install and run:
+### Backend
+- Node.js
+- Express.js
+- MongoDB with Mongoose
+- JWT authentication
+- bcrypt for password hashing
 
-```powershell
-cd backend
-npm install
+### Frontend
+- React 18
+- Modern CSS with Tailwind CSS
+- Chart.js for visualizations
+- Axios for API calls
+- React Router for navigation
+
+## Getting Started
+
+1. Install dependencies:
+```bash
+npm run install-all
+```
+
+2. Set up environment variables:
+- Copy `backend/.env.example` to `backend/.env`
+- Copy `frontend/.env.example` to `frontend/.env`
+
+3. Start the development servers:
+```bash
 npm run dev
 ```
 
-2. Frontend
+This will start both the backend server (port 5000) and frontend development server (port 3000).
 
-```powershell
-cd frontend
-npm install
-npm start
+## Project Structure
+
 ```
-
-The frontend runs on http://localhost:3000 and the backend on http://localhost:5000 by default.
-# MERN Expense Tracker
-
-A **full-stack MERN (MongoDB, Express, React, Node.js) Expense Tracker** web application with authentication, expense management, dynamic charts, and modern UI. Track your expenses efficiently, analyze your spending habits, and gain insights with category-wise summaries and visual dashboards.
-
----
-
-## **Features**
-
-### **1. Authentication & Users**
-- User registration and login with **JWT authentication**.
-- Passwords are securely hashed using **bcrypt**.
-- Each user can only manage and view their **own expenses**.
-
-### **2. Expense Management**
-- Add, edit, and delete expenses.
-- Each expense has:
-  - **Title**
-  - **Amount**
-  - **Category** (Food, Travel, Shopping, Bills, Entertainment, Other)
-  - **Date**
-  - **Recurring option**
-- Real-time updates on adding or deleting expenses.
-
-### **3. Dashboard & Reports**
-- Displays **total expenses**.
-- **Category-wise summary** with a **bar chart**.
-- Responsive dashboard using **Material-UI**.
-- Easy visualization of monthly/weekly spending trends.
-
-### **4. Modern UI/UX**
-- Clean, stylish, and **responsive design**.
-- Material-UI components with **hover effects and smooth transitions**.
-- Light/Dark mode toggle (optional for competition-level enhancements).
-
-### **5. Backend & API**
-- **RESTful API** built with **Express.js**.
-- **MongoDB** database to store users and expenses.
-- Secure endpoints with **JWT authentication**.
-- Input validation and error handling.
-
-### **6. Extra Features (Optional Enhancements)**
-- Export expenses as **CSV or PDF**.
-- Search and filter expenses by **category** or **date**.
-- Notifications for **upcoming recurring expenses**.
-- Production-ready **folder structure** with reusable components and clear comments.
-
----
-
-## **Tech Stack**
-
-| Layer          | Technology                   |
-|----------------|------------------------------|
-| Frontend       | React.js, Material-UI        |
-| Backend        | Node.js, Express.js          |
-| Database       | MongoDB                      |
-| Authentication | JWT, bcrypt                  |
-| Charts         | Chart.js, react-chartjs-2    |
-| Styling        | Material-UI (MUI)            |
-| Tools          | Axios, React Router Dom      |
-
----
-
-## **Folder Structure**
-
+expense-tracker/
+├── backend/          # Node.js backend
+├── frontend/         # React frontend
+└── package.json      # Root package.json for scripts
+```

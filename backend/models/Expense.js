@@ -1,23 +1,37 @@
 const mongoose = require('mongoose');
 
-const ExpenseSchema = new mongoose.Schema({
-  title: { type: String, required: true },
-  amount: { type: Number, required: true },
-  category: { type: String },
-  date: { type: Date, default: Date.now },
-  notes: { type: String },
-}, { timestamps: true });
-
-module.exports = mongoose.model('Expense', ExpenseSchema);
-const mongoose = require('mongoose');
-
 const expenseSchema = new mongoose.Schema({
-  user: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-  title: { type: String, required: true },
-  amount: { type: Number, required: true },
-  category: { type: String, required: true },
-  date: { type: Date, default: Date.now },
-  recurring: { type: Boolean, default: false }
+  title: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  amount: {
+    type: Number,
+    required: true,
+    min: 0
+  },
+  category: {
+    type: String,
+    required: true,
+    enum: ['Food', 'Transportation', 'Entertainment', 'Shopping', 'Healthcare', 'Education', 'Utilities', 'Other']
+  },
+  description: {
+    type: String,
+    trim: true
+  },
+  date: {
+    type: Date,
+    required: true,
+    default: Date.now
+  },
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User',
+    required: true
+  }
+}, {
+  timestamps: true
 });
 
 module.exports = mongoose.model('Expense', expenseSchema);
