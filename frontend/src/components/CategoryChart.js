@@ -9,11 +9,11 @@ import {
 
 ChartJS.register(ArcElement, Tooltip, Legend);
 
-const ExpenseChart = ({ data }) => {
+const CategoryChart = ({ data }) => {
   if (!data || data.length === 0) {
     return (
       <div className="text-center py-8">
-        <p className="text-gray-500">No data available for chart</p>
+        <p className="text-gray-500">No category data available</p>
       </div>
     );
   }
@@ -73,4 +73,4 @@ const ExpenseChart = ({ data }) => {
   );
 };
 
-export default ExpenseChart;
+export default CategoryChart;

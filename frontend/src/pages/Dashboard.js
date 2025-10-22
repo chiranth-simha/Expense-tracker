@@ -3,7 +3,7 @@ import axios from 'axios';
 import toast from 'react-hot-toast';
 import ExpenseForm from '../components/ExpenseForm';
 import ExpenseList from '../components/ExpenseList';
-import ExpenseChart from '../components/ExpenseChart';
+import CategoryChart from '../components/CategoryChart';
 import { Plus, TrendingUp, TrendingDown, DollarSign, Wallet } from 'lucide-react';
 
 const Dashboard = () => {
@@ -245,10 +245,10 @@ const Dashboard = () => {
         <div className="space-y-6">
           <div className="card">
             <div className="card-header">
-              <h3 className="text-lg font-semibold">Transactions by Category</h3>
+              <h3 className="text-lg font-semibold">Expenses by Category</h3>
             </div>
             <div className="card-content">
-              <ExpenseChart data={stats.categories} />
+              <CategoryChart data={stats.categories} />
             </div>
           </div>
         </div>
