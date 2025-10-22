@@ -68,11 +68,11 @@ const ExpenseList = ({ expenses, onEdit, onDelete }) => {
               
               <div className="flex items-center space-x-4 text-sm text-gray-500 mb-2">
                 <div className="flex items-center space-x-1">
-                  <DollarSign className="h-4 w-4" />
+                  <span className="text-lg font-bold">₹</span>
                   <span className={`font-semibold text-lg ${
                     expense.type === 'income' ? 'text-green-600' : 'text-red-600'
                   }`}>
-                    {expense.type === 'income' ? '+' : '-'}${expense.amount.toFixed(2)}
+                    {expense.type === 'income' ? '+' : '-'}₹{expense.amount.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex items-center space-x-1">

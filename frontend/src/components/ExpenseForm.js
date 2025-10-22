@@ -110,7 +110,7 @@ const ExpenseForm = ({ expense, onSubmit, onCancel }) => {
             Amount
           </label>
           <div className="relative">
-            <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-gray-400" />
+            <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 font-bold">₹</span>
             <input
               type="number"
               id="amount"
@@ -119,7 +119,7 @@ const ExpenseForm = ({ expense, onSubmit, onCancel }) => {
               min="0"
               step="0.01"
               className="input pl-10"
-              placeholder="0.00"
+              placeholder="₹0.00"
               value={formData.amount}
               onChange={handleChange}
             />

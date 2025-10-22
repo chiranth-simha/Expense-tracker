@@ -139,7 +139,7 @@ const Dashboard = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Income</p>
                 <p className="text-2xl font-semibold text-green-600">
-                  +${stats.totalIncome.toFixed(2)}
+                  +₹{stats.totalIncome.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -155,7 +155,7 @@ const Dashboard = () => {
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Expenses</p>
                 <p className="text-2xl font-semibold text-red-600">
-                  -${stats.totalExpense.toFixed(2)}
+                  -₹{stats.totalExpense.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -173,7 +173,7 @@ const Dashboard = () => {
                 <p className={`text-2xl font-semibold ${
                   stats.balance >= 0 ? 'text-green-600' : 'text-red-600'
                 }`}>
-                  ${stats.balance.toFixed(2)}
+                  ₹{stats.balance.toFixed(2)}
                 </p>
               </div>
             </div>

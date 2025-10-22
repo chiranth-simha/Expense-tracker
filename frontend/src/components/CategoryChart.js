@@ -59,7 +59,7 @@ const CategoryChart = ({ data }) => {
             const value = context.parsed;
             const total = context.dataset.data.reduce((a, b) => a + b, 0);
             const percentage = ((value / total) * 100).toFixed(1);
-            return `${label}: $${value.toFixed(2)} (${percentage}%)`;
+            return `${label}: ₹${value.toFixed(2)} (${percentage}%)`;
           },
         },
       },
