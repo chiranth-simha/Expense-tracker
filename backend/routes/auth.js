@@ -1,5 +1,6 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator');
 const User = require('../models/User');
 const authMiddleware = require('../middleware/authMiddleware');
@@ -100,7 +101,8 @@ router.post('/login', [
 // Get current user
 router.get('/me', authMiddleware, async (req, res) => {
   try {
-    const user = await User.findById(req.user.userId).select('-password');
+    const userId = new mongoose.Types.ObjectId(req.user.userId);
+    const user = await User.findById(userId).select('-password');
     res.json(user);
   } catch (error) {
     console.error('Get user error:', error);

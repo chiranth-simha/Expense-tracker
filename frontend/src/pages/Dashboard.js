@@ -33,10 +33,14 @@ const Dashboard = () => {
 
   const fetchStats = useCallback(async () => {
     try {
+      console.log('Fetching stats...');
       const [categoryStats, summaryStats] = await Promise.all([
         axios.get('/api/expenses/stats/category'),
         axios.get('/api/expenses/stats/summary')
       ]);
+
+      console.log('Category stats:', categoryStats.data);
+      console.log('Summary stats:', summaryStats.data);
 
       setStats({
         totalIncome: summaryStats.data.income,
@@ -52,8 +56,11 @@ const Dashboard = () => {
   }, []);
 
   useEffect(() => {
-    fetchExpenses();
-    fetchStats();
+    const loadData = async () => {
+      await fetchExpenses();
+      await fetchStats();
+    };
+    loadData();
   }, [fetchExpenses, fetchStats]);
 
   const handleAddExpense = async (expenseData) => {

@@ -1,5 +1,6 @@
 const express = require('express');
 const { body, validationResult } = require('express-validator');
+const mongoose = require('mongoose');
 const Expense = require('../models/Expense');
 const authMiddleware = require('../middleware/authMiddleware');
 
@@ -8,7 +9,8 @@ const router = express.Router();
 // Get all expenses for a user
 router.get('/', authMiddleware, async (req, res) => {
   try {
-    const expenses = await Expense.find({ user: req.user.userId })
+    const userId = new mongoose.Types.ObjectId(new mongoose.Types.ObjectId(req.user.userId));
+    const expenses = await Expense.find({ user: userId })
       .sort({ date: -1 });
     res.json(expenses);
   } catch (error) {
@@ -22,7 +24,7 @@ router.get('/:id', authMiddleware, async (req, res) => {
   try {
     const expense = await Expense.findOne({
       _id: req.params.id,
-      user: req.user.userId
+      user: new mongoose.Types.ObjectId(req.user.userId)
     });
     
     if (!expense) {
@@ -60,7 +62,7 @@ router.post('/', [
       category,
       description,
       date: date || new Date(),
-      user: req.user.userId
+      user: new mongoose.Types.ObjectId(req.user.userId)
     });
 
     await expense.save();
@@ -88,7 +90,7 @@ router.put('/:id', [
 
     const expense = await Expense.findOne({
       _id: req.params.id,
-      user: req.user.userId
+      user: new mongoose.Types.ObjectId(req.user.userId)
     });
 
     if (!expense) {
@@ -117,7 +119,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const expense = await Expense.findOneAndDelete({
       _id: req.params.id,
-      user: req.user.userId
+      user: new mongoose.Types.ObjectId(req.user.userId)
     });
 
     if (!expense) {
@@ -134,8 +136,9 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 // Get expenses by category
 router.get('/stats/category', authMiddleware, async (req, res) => {
   try {
+    console.log('User ID for category stats:', new mongoose.Types.ObjectId(req.user.userId));
     const stats = await Expense.aggregate([
-      { $match: { user: req.user.userId } },
+      { $match: { user: new mongoose.Types.ObjectId(req.user.userId) } },
       {
         $group: {
           _id: '$category',
@@ -146,6 +149,7 @@ router.get('/stats/category', authMiddleware, async (req, res) => {
       { $sort: { total: -1 } }
     ]);
     
+    console.log('Category stats result:', stats);
     res.json(stats);
   } catch (error) {
     console.error('Get category stats error:', error);
@@ -161,7 +165,7 @@ router.get('/stats/monthly', authMiddleware, async (req, res) => {
     const stats = await Expense.aggregate([
       {
         $match: {
-          user: req.user.userId,
+          user: new mongoose.Types.ObjectId(req.user.userId),
           date: {
             $gte: new Date(year, 0, 1),
             $lt: new Date(year + 1, 0, 1)
@@ -188,8 +192,9 @@ router.get('/stats/monthly', authMiddleware, async (req, res) => {
 // Get income vs expense summary
 router.get('/stats/summary', authMiddleware, async (req, res) => {
   try {
+    console.log('User ID for summary stats:', new mongoose.Types.ObjectId(req.user.userId));
     const summary = await Expense.aggregate([
-      { $match: { user: req.user.userId } },
+      { $match: { user: new mongoose.Types.ObjectId(req.user.userId) } },
       {
         $group: {
           _id: '$type',
@@ -199,16 +204,21 @@ router.get('/stats/summary', authMiddleware, async (req, res) => {
       }
     ]);
     
+    console.log('Summary aggregation result:', summary);
+    
     const income = summary.find(s => s._id === 'income') || { total: 0, count: 0 };
     const expense = summary.find(s => s._id === 'expense') || { total: 0, count: 0 };
     
-    res.json({
+    const result = {
       income: income.total,
       expense: expense.total,
       balance: income.total - expense.total,
       incomeCount: income.count,
       expenseCount: expense.count
-    });
+    };
+    
+    console.log('Final summary result:', result);
+    res.json(result);
   } catch (error) {
     console.error('Get summary stats error:', error);
     res.status(500).json({ message: 'Server error' });
