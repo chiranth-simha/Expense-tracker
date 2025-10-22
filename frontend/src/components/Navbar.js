@@ -17,8 +17,10 @@ const Navbar = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
-            <Link to="/" className="flex items-center space-x-2">
-              <span className="text-2xl font-bold text-blue-600">₹</span>
+            <Link to="/" className="flex items-center space-x-3">
+              <div className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-full">
+                <span className="text-white text-xl font-bold">₹</span>
+              </div>
               <span className="text-xl font-bold text-gray-900">ExpenseTracker</span>
             </Link>
           </div>
