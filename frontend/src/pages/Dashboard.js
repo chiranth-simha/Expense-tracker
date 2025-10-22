@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import ExpenseForm from '../components/ExpenseForm';
 import ExpenseList from '../components/ExpenseList';
 import ExpenseChart from '../components/ExpenseChart';
-import { Plus, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
+import { Plus, TrendingUp, TrendingDown, DollarSign, Wallet } from 'lucide-react';
 
 const Dashboard = () => {
   const [expenses, setExpenses] = useState([]);
@@ -12,18 +12,15 @@ const Dashboard = () => {
   const [showForm, setShowForm] = useState(false);
   const [editingExpense, setEditingExpense] = useState(null);
   const [stats, setStats] = useState({
-    total: 0,
-    thisMonth: 0,
-    lastMonth: 0,
+    totalIncome: 0,
+    totalExpense: 0,
+    balance: 0,
+    incomeCount: 0,
+    expenseCount: 0,
     categories: []
   });
 
-  useEffect(() => {
-    fetchExpenses();
-    fetchStats();
-  }, []);
-
-  const fetchExpenses = async () => {
+  const fetchExpenses = useCallback(async () => {
     try {
       const response = await axios.get('/api/expenses');
       setExpenses(response.data);
@@ -32,45 +29,42 @@ const Dashboard = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
-      const [categoryStats, monthlyStats] = await Promise.all([
+      const [categoryStats, summaryStats] = await Promise.all([
         axios.get('/api/expenses/stats/category'),
-        axios.get('/api/expenses/stats/monthly')
+        axios.get('/api/expenses/stats/summary')
       ]);
 
-      const total = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-      const currentMonth = new Date().getMonth();
-      const thisMonth = expenses
-        .filter(expense => new Date(expense.date).getMonth() === currentMonth)
-        .reduce((sum, expense) => sum + expense.amount, 0);
-      
-      const lastMonth = expenses
-        .filter(expense => new Date(expense.date).getMonth() === currentMonth - 1)
-        .reduce((sum, expense) => sum + expense.amount, 0);
-
       setStats({
-        total,
-        thisMonth,
-        lastMonth,
+        totalIncome: summaryStats.data.income,
+        totalExpense: summaryStats.data.expense,
+        balance: summaryStats.data.balance,
+        incomeCount: summaryStats.data.incomeCount,
+        expenseCount: summaryStats.data.expenseCount,
         categories: categoryStats.data
       });
     } catch (error) {
       console.error('Failed to fetch stats:', error);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchExpenses();
+    fetchStats();
+  }, [fetchExpenses, fetchStats]);
 
   const handleAddExpense = async (expenseData) => {
     try {
       const response = await axios.post('/api/expenses', expenseData);
       setExpenses([response.data, ...expenses]);
-      toast.success('Expense added successfully');
+      toast.success('Transaction added successfully');
       setShowForm(false);
-      fetchStats();
+      await fetchStats();
     } catch (error) {
-      toast.error('Failed to add expense');
+      toast.error('Failed to add transaction');
     }
   };
 
@@ -80,23 +74,23 @@ const Dashboard = () => {
       setExpenses(expenses.map(expense => 
         expense._id === id ? response.data : expense
       ));
-      toast.success('Expense updated successfully');
+      toast.success('Transaction updated successfully');
       setEditingExpense(null);
-      fetchStats();
+      await fetchStats();
     } catch (error) {
-      toast.error('Failed to update expense');
+      toast.error('Failed to update transaction');
     }
   };
 
   const handleDeleteExpense = async (id) => {
-    if (window.confirm('Are you sure you want to delete this expense?')) {
+    if (window.confirm('Are you sure you want to delete this transaction?')) {
       try {
         await axios.delete(`/api/expenses/${id}`);
         setExpenses(expenses.filter(expense => expense._id !== id));
-        toast.success('Expense deleted successfully');
-        fetchStats();
+        toast.success('Transaction deleted successfully');
+        await fetchStats();
       } catch (error) {
-        toast.error('Failed to delete expense');
+        toast.error('Failed to delete transaction');
       }
     }
   };
@@ -124,7 +118,7 @@ const Dashboard = () => {
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">Dashboard</h1>
-        <p className="mt-2 text-gray-600">Track and manage your expenses</p>
+        <p className="mt-2 text-gray-600">Track and manage your income and expenses</p>
       </div>
 
       {/* Stats Cards */}
@@ -133,28 +127,12 @@ const Dashboard = () => {
           <div className="card-content">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <DollarSign className="h-8 w-8 text-blue-600" />
-              </div>
-              <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Total Expenses</p>
-                <p className="text-2xl font-semibold text-gray-900">
-                  ${stats.total.toFixed(2)}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="card">
-          <div className="card-content">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
                 <TrendingUp className="h-8 w-8 text-green-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">This Month</p>
-                <p className="text-2xl font-semibold text-gray-900">
-                  ${stats.thisMonth.toFixed(2)}
+                <p className="text-sm font-medium text-gray-500">Total Income</p>
+                <p className="text-2xl font-semibold text-green-600">
+                  +${stats.totalIncome.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -168,9 +146,9 @@ const Dashboard = () => {
                 <TrendingDown className="h-8 w-8 text-red-600" />
               </div>
               <div className="ml-4">
-                <p className="text-sm font-medium text-gray-500">Last Month</p>
-                <p className="text-2xl font-semibold text-gray-900">
-                  ${stats.lastMonth.toFixed(2)}
+                <p className="text-sm font-medium text-gray-500">Total Expenses</p>
+                <p className="text-2xl font-semibold text-red-600">
+                  -${stats.totalExpense.toFixed(2)}
                 </p>
               </div>
             </div>
@@ -181,12 +159,30 @@ const Dashboard = () => {
           <div className="card-content">
             <div className="flex items-center">
               <div className="flex-shrink-0">
-                <Plus className="h-8 w-8 text-purple-600" />
+                <Wallet className="h-8 w-8 text-blue-600" />
+              </div>
+              <div className="ml-4">
+                <p className="text-sm font-medium text-gray-500">Balance</p>
+                <p className={`text-2xl font-semibold ${
+                  stats.balance >= 0 ? 'text-green-600' : 'text-red-600'
+                }`}>
+                  ${stats.balance.toFixed(2)}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="card">
+          <div className="card-content">
+            <div className="flex items-center">
+              <div className="flex-shrink-0">
+                <DollarSign className="h-8 w-8 text-purple-600" />
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Transactions</p>
                 <p className="text-2xl font-semibold text-gray-900">
-                  {expenses.length}
+                  {stats.incomeCount + stats.expenseCount}
                 </p>
               </div>
             </div>
@@ -201,7 +197,7 @@ const Dashboard = () => {
           className="btn btn-primary btn-lg flex items-center space-x-2"
         >
           <Plus className="h-5 w-5" />
-          <span>Add Expense</span>
+          <span>Add Transaction</span>
         </button>
       </div>
 
@@ -226,7 +222,7 @@ const Dashboard = () => {
         <div className="lg:col-span-2">
           <div className="card">
             <div className="card-header">
-              <h3 className="text-lg font-semibold">Recent Expenses</h3>
+              <h3 className="text-lg font-semibold">Recent Transactions</h3>
             </div>
             <div className="card-content">
               <ExpenseList
@@ -242,7 +238,7 @@ const Dashboard = () => {
         <div className="space-y-6">
           <div className="card">
             <div className="card-header">
-              <h3 className="text-lg font-semibold">Expenses by Category</h3>
+              <h3 className="text-lg font-semibold">Transactions by Category</h3>
             </div>
             <div className="card-content">
               <ExpenseChart data={stats.categories} />

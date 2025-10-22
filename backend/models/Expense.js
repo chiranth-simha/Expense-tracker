@@ -11,10 +11,21 @@ const expenseSchema = new mongoose.Schema({
     required: true,
     min: 0
   },
+  type: {
+    type: String,
+    required: true,
+    enum: ['income', 'expense'],
+    default: 'expense'
+  },
   category: {
     type: String,
     required: true,
-    enum: ['Food', 'Transportation', 'Entertainment', 'Shopping', 'Healthcare', 'Education', 'Utilities', 'Other']
+    enum: [
+      // Income categories
+      'Salary', 'Freelance', 'Investment', 'Business', 'Gift', 'Other Income',
+      // Expense categories
+      'Food', 'Transportation', 'Entertainment', 'Shopping', 'Healthcare', 'Education', 'Utilities', 'Other Expense'
+    ]
   },
   description: {
     type: String,

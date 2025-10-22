@@ -41,7 +41,8 @@ router.post('/', [
   authMiddleware,
   body('title').trim().isLength({ min: 1 }).withMessage('Title is required'),
   body('amount').isNumeric().withMessage('Amount must be a number'),
-  body('category').isIn(['Food', 'Transportation', 'Entertainment', 'Shopping', 'Healthcare', 'Education', 'Utilities', 'Other']).withMessage('Invalid category'),
+  body('type').isIn(['income', 'expense']).withMessage('Invalid type'),
+  body('category').isIn(['Salary', 'Freelance', 'Investment', 'Business', 'Gift', 'Other Income', 'Food', 'Transportation', 'Entertainment', 'Shopping', 'Healthcare', 'Education', 'Utilities', 'Other Expense']).withMessage('Invalid category'),
   body('date').optional().isISO8601().withMessage('Invalid date format')
 ], async (req, res) => {
   try {
@@ -50,11 +51,12 @@ router.post('/', [
       return res.status(400).json({ errors: errors.array() });
     }
 
-    const { title, amount, category, description, date } = req.body;
+    const { title, amount, type, category, description, date } = req.body;
     
     const expense = new Expense({
       title,
       amount,
+      type: type || 'expense',
       category,
       description,
       date: date || new Date(),
@@ -74,7 +76,8 @@ router.put('/:id', [
   authMiddleware,
   body('title').optional().trim().isLength({ min: 1 }).withMessage('Title cannot be empty'),
   body('amount').optional().isNumeric().withMessage('Amount must be a number'),
-  body('category').optional().isIn(['Food', 'Transportation', 'Entertainment', 'Shopping', 'Healthcare', 'Education', 'Utilities', 'Other']).withMessage('Invalid category'),
+  body('type').optional().isIn(['income', 'expense']).withMessage('Invalid type'),
+  body('category').optional().isIn(['Salary', 'Freelance', 'Investment', 'Business', 'Gift', 'Other Income', 'Food', 'Transportation', 'Entertainment', 'Shopping', 'Healthcare', 'Education', 'Utilities', 'Other Expense']).withMessage('Invalid category'),
   body('date').optional().isISO8601().withMessage('Invalid date format')
 ], async (req, res) => {
   try {
@@ -92,10 +95,11 @@ router.put('/:id', [
       return res.status(404).json({ message: 'Expense not found' });
     }
 
-    const { title, amount, category, description, date } = req.body;
+    const { title, amount, type, category, description, date } = req.body;
     
     if (title) expense.title = title;
     if (amount !== undefined) expense.amount = amount;
+    if (type) expense.type = type;
     if (category) expense.category = category;
     if (description !== undefined) expense.description = description;
     if (date) expense.date = date;
@@ -177,6 +181,36 @@ router.get('/stats/monthly', authMiddleware, async (req, res) => {
     res.json(stats);
   } catch (error) {
     console.error('Get monthly stats error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Get income vs expense summary
+router.get('/stats/summary', authMiddleware, async (req, res) => {
+  try {
+    const summary = await Expense.aggregate([
+      { $match: { user: req.user.userId } },
+      {
+        $group: {
+          _id: '$type',
+          total: { $sum: '$amount' },
+          count: { $sum: 1 }
+        }
+      }
+    ]);
+    
+    const income = summary.find(s => s._id === 'income') || { total: 0, count: 0 };
+    const expense = summary.find(s => s._id === 'expense') || { total: 0, count: 0 };
+    
+    res.json({
+      income: income.total,
+      expense: expense.total,
+      balance: income.total - expense.total,
+      incomeCount: income.count,
+      expenseCount: expense.count
+    });
+  } catch (error) {
+    console.error('Get summary stats error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });

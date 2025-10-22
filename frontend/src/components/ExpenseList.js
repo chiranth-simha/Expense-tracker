@@ -1,20 +1,32 @@
 import React from 'react';
-import { Edit, Trash2, Calendar, Tag, DollarSign } from 'lucide-react';
+import { Edit, Trash2, Calendar, DollarSign, TrendingUp, TrendingDown } from 'lucide-react';
 import { format } from 'date-fns';
 
 const ExpenseList = ({ expenses, onEdit, onDelete }) => {
-  const getCategoryColor = (category) => {
-    const colors = {
-      Food: 'bg-red-100 text-red-800',
-      Transportation: 'bg-blue-100 text-blue-800',
-      Entertainment: 'bg-purple-100 text-purple-800',
-      Shopping: 'bg-pink-100 text-pink-800',
-      Healthcare: 'bg-green-100 text-green-800',
-      Education: 'bg-yellow-100 text-yellow-800',
-      Utilities: 'bg-gray-100 text-gray-800',
-      Other: 'bg-indigo-100 text-indigo-800'
-    };
-    return colors[category] || 'bg-gray-100 text-gray-800';
+  const getCategoryColor = (category, type) => {
+    if (type === 'income') {
+      const colors = {
+        Salary: 'bg-green-100 text-green-800',
+        Freelance: 'bg-emerald-100 text-emerald-800',
+        Investment: 'bg-teal-100 text-teal-800',
+        Business: 'bg-cyan-100 text-cyan-800',
+        Gift: 'bg-lime-100 text-lime-800',
+        'Other Income': 'bg-green-100 text-green-800'
+      };
+      return colors[category] || 'bg-green-100 text-green-800';
+    } else {
+      const colors = {
+        Food: 'bg-red-100 text-red-800',
+        Transportation: 'bg-blue-100 text-blue-800',
+        Entertainment: 'bg-purple-100 text-purple-800',
+        Shopping: 'bg-pink-100 text-pink-800',
+        Healthcare: 'bg-green-100 text-green-800',
+        Education: 'bg-yellow-100 text-yellow-800',
+        Utilities: 'bg-gray-100 text-gray-800',
+        'Other Expense': 'bg-indigo-100 text-indigo-800'
+      };
+      return colors[category] || 'bg-gray-100 text-gray-800';
+    }
   };
 
   if (expenses.length === 0) {
@@ -39,16 +51,28 @@ const ExpenseList = ({ expenses, onEdit, onDelete }) => {
                 <h4 className="text-lg font-semibold text-gray-900">
                   {expense.title}
                 </h4>
-                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(expense.category)}`}>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium ${getCategoryColor(expense.category, expense.type)}`}>
                   {expense.category}
+                </span>
+                <span className={`px-2 py-1 rounded-full text-xs font-medium flex items-center ${
+                  expense.type === 'income' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                }`}>
+                  {expense.type === 'income' ? (
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                  ) : (
+                    <TrendingDown className="h-3 w-3 mr-1" />
+                  )}
+                  {expense.type}
                 </span>
               </div>
               
               <div className="flex items-center space-x-4 text-sm text-gray-500 mb-2">
                 <div className="flex items-center space-x-1">
                   <DollarSign className="h-4 w-4" />
-                  <span className="font-semibold text-lg text-gray-900">
-                    ${expense.amount.toFixed(2)}
+                  <span className={`font-semibold text-lg ${
+                    expense.type === 'income' ? 'text-green-600' : 'text-red-600'
+                  }`}>
+                    {expense.type === 'income' ? '+' : '-'}${expense.amount.toFixed(2)}
                   </span>
                 </div>
                 <div className="flex items-center space-x-1">

@@ -1,25 +1,37 @@
 import React, { useState } from 'react';
-import { Calendar, DollarSign, Tag, FileText, X } from 'lucide-react';
+import { Calendar, DollarSign, Tag, FileText, X, TrendingUp, TrendingDown } from 'lucide-react';
 
 const ExpenseForm = ({ expense, onSubmit, onCancel }) => {
   const [formData, setFormData] = useState({
     title: expense?.title || '',
     amount: expense?.amount || '',
+    type: expense?.type || 'expense',
     category: expense?.category || 'Food',
     description: expense?.description || '',
     date: expense?.date ? new Date(expense.date).toISOString().split('T')[0] : new Date().toISOString().split('T')[0]
   });
 
-  const categories = [
-    'Food', 'Transportation', 'Entertainment', 'Shopping', 
-    'Healthcare', 'Education', 'Utilities', 'Other'
+  const incomeCategories = [
+    'Salary', 'Freelance', 'Investment', 'Business', 'Gift', 'Other Income'
   ];
 
+  const expenseCategories = [
+    'Food', 'Transportation', 'Entertainment', 'Shopping', 
+    'Healthcare', 'Education', 'Utilities', 'Other Expense'
+  ];
+
+  const getCategories = () => {
+    return formData.type === 'income' ? incomeCategories : expenseCategories;
+  };
+
   const handleChange = (e) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value,
+      // Reset category when type changes
+      ...(name === 'type' && { category: value === 'income' ? incomeCategories[0] : expenseCategories[0] })
+    }));
   };
 
   const handleSubmit = (e) => {
@@ -31,7 +43,7 @@ const ExpenseForm = ({ expense, onSubmit, onCancel }) => {
     <div>
       <div className="flex items-center justify-between mb-6">
         <h2 className="text-xl font-semibold">
-          {expense ? 'Edit Expense' : 'Add New Expense'}
+          {expense ? 'Edit Transaction' : 'Add New Transaction'}
         </h2>
         <button
           onClick={onCancel}
@@ -42,6 +54,38 @@ const ExpenseForm = ({ expense, onSubmit, onCancel }) => {
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="type" className="block text-sm font-medium text-gray-700 mb-2">
+            Type
+          </label>
+          <div className="flex space-x-4">
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="type"
+                value="income"
+                checked={formData.type === 'income'}
+                onChange={handleChange}
+                className="mr-2"
+              />
+              <TrendingUp className="h-4 w-4 text-green-600 mr-1" />
+              <span className="text-green-600 font-medium">Income</span>
+            </label>
+            <label className="flex items-center">
+              <input
+                type="radio"
+                name="type"
+                value="expense"
+                checked={formData.type === 'expense'}
+                onChange={handleChange}
+                className="mr-2"
+              />
+              <TrendingDown className="h-4 w-4 text-red-600 mr-1" />
+              <span className="text-red-600 font-medium">Expense</span>
+            </label>
+          </div>
+        </div>
+
         <div>
           <label htmlFor="title" className="block text-sm font-medium text-gray-700 mb-2">
             Title
@@ -54,7 +98,7 @@ const ExpenseForm = ({ expense, onSubmit, onCancel }) => {
               name="title"
               required
               className="input pl-10"
-              placeholder="Enter expense title"
+              placeholder="Enter transaction title"
               value={formData.title}
               onChange={handleChange}
             />
@@ -96,7 +140,7 @@ const ExpenseForm = ({ expense, onSubmit, onCancel }) => {
               value={formData.category}
               onChange={handleChange}
             >
-              {categories.map(category => (
+              {getCategories().map(category => (
                 <option key={category} value={category}>
                   {category}
                 </option>
@@ -143,7 +187,7 @@ const ExpenseForm = ({ expense, onSubmit, onCancel }) => {
             type="submit"
             className="btn btn-primary btn-md flex-1"
           >
-            {expense ? 'Update Expense' : 'Add Expense'}
+            {expense ? 'Update Transaction' : 'Add Transaction'}
           </button>
           <button
             type="button"
