@@ -94,6 +94,19 @@ export const AuthProvider = ({ children }) => {
     toast.success('Logged out successfully');
   };
 
+  const updateProfile = async (profileData) => {
+    try {
+      const response = await axios.put('/api/auth/profile', profileData);
+      dispatch({ type: 'LOGIN_SUCCESS', payload: { user: response.data, token: state.token } });
+      toast.success('Profile updated successfully');
+      return { success: true };
+    } catch (error) {
+      const message = error.response?.data?.message || 'Failed to update profile';
+      toast.error(message);
+      return { success: false, error: message };
+    }
+  };
+
   const loadUser = async () => {
     if (state.token) {
       try {
@@ -118,7 +131,8 @@ export const AuthProvider = ({ children }) => {
       login,
       register,
       logout,
-      loadUser
+      loadUser,
+      updateProfile
     }}>
       {children}
     </AuthContext.Provider>

@@ -98,14 +98,55 @@ router.post('/login', [
   }
 });
 
-// Get current user
-router.get('/me', authMiddleware, async (req, res) => {
+// Update user profile
+router.put('/profile', [
+  authMiddleware,
+  body('name').optional().trim().isLength({ min: 2 }).withMessage('Name must be at least 2 characters'),
+  body('email').optional().isEmail().withMessage('Please enter a valid email'),
+  body('currentPassword').optional().isLength({ min: 6 }).withMessage('Current password must be at least 6 characters'),
+  body('newPassword').optional().isLength({ min: 6 }).withMessage('New password must be at least 6 characters')
+], async (req, res) => {
   try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { name, email, currentPassword, newPassword } = req.body;
     const userId = new mongoose.Types.ObjectId(req.user.userId);
-    const user = await User.findById(userId).select('-password');
-    res.json(user);
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+
+    // Update basic info
+    if (name) user.name = name;
+    if (email) user.email = email;
+
+    // Update password if provided
+    if (newPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({ message: 'Current password is required to change password' });
+      }
+      
+      const isMatch = await user.comparePassword(currentPassword);
+      if (!isMatch) {
+        return res.status(400).json({ message: 'Current password is incorrect' });
+      }
+      
+      user.password = newPassword;
+    }
+
+    await user.save();
+
+    res.json({
+      id: user._id,
+      name: user.name,
+      email: user.email
+    });
   } catch (error) {
-    console.error('Get user error:', error);
+    console.error('Profile update error:', error);
     res.status(500).json({ message: 'Server error' });
   }
 });
